@@ -1,6 +1,7 @@
 import Chat from "../models/Chat.js";
 import User from "../models/User.js";
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcryptjs'
 
 //to generate the token
 const generateToken = (id) =>{
@@ -24,7 +25,7 @@ export const registerUser = async (req, res) => {
         const user = await User.create({name, email, password})
 
         const token = generateToken(user._id)
-        res.json({success: true})
+        res.json({success: true, token})
     } catch (error) {
         return res.json({success: false, message: error.message})
     }
@@ -36,7 +37,7 @@ export const loginUser = async (req, res) => {
     try {
         const user = await User.findOne({email})
 
-        if(userExists){
+        if(user){
              const isMatch = await bcrypt.compare(password, user.password)
 
              if(isMatch){
