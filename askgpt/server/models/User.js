@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
+
 
 const userSchema = new mongoose.Schema({
     name: {type: String, required: true},
@@ -8,7 +9,7 @@ const userSchema = new mongoose.Schema({
     credits: {type: Number, default: 20},
 })
 
-// Hash password before saving
+//hash the password before using
 userSchema.pre('save', async function (next) {
     if(!this.isModified('password')){
         return next()

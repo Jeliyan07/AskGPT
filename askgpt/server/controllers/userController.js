@@ -1,86 +1,86 @@
-import User from "../models/User.js";
-import jwt from 'jsonwebtoken'
-import bcrypt from "bcryptjs";
 import Chat from "../models/Chat.js";
+import User from "../models/User";
+import jwt from 'jsonwebtoken'
 
-// Generate JWT
-const generateToken = (id)=>{
+//to generate the token
+const generateToken = (id) =>{
     return jwt.sign({id}, process.env.JWT_SECRET, {
-        expiresIn: '30d'
+        expiresIn: '60d'
     })
 }
 
-// API to register user
+
+//api to register the user 
 export const registerUser = async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email ,password } = req.body;
 
     try {
         const userExists = await User.findOne({email})
 
         if(userExists){
-            return res.json({success: false, message: "User already exists"})
+            return res.json({success: false, message: "User already exist"})
         }
 
         const user = await User.create({name, email, password})
 
         const token = generateToken(user._id)
-        res.json({success: true, token})
+        res.json({success: true})
     } catch (error) {
-        return res.json({success: false, message: error.message })
+        return res.json({success: false, message: error.message})
     }
 }
 
-// API to login user
-export const loginUser = async (req, res) =>{
+//api to login user
+export const loginUser = async (req, res) => {
     const { email, password } = req.body;
     try {
         const user = await User.findOne({email})
-        if(user){
-            const isMatch = await bcrypt.compare(password, user.password)
 
-            if(isMatch){
+        if(userExists){
+             const isMatch = await bcrypt.compare(password, user.password)
+
+             if(isMatch){
                 const token = generateToken(user._id);
                 return res.json({success: true, token })
-            }
+             }
         }
-        return res.json({success: false, message: "Invalid email or password"})
+        return res.json({ success: false, message: "Invalid email or password"})
     } catch (error) {
         return res.json({success: false, message: error.message })
     }
 }
 
-// API to get user data
-export const getUser = async (req, res) =>{
-    try {
+//api to get user data
+export const getUser = async (req, res) => {
+    try{
         const user = req.user;
-        return res.json({success: true, user})
-    } catch (error) {
-        return res.json({success: false, message: error.message })
+        return res.json({ success: true, user })
+    } catch (error){
+        return res.json({ success: false, message: error.message })
     }
 }
 
-// API to get published images
+//api to get published images
 export const getPublishedImages = async (req, res) => {
     try {
-        const publishedImageMessages = await Chat.aggregate([
+        const  publishedImageMessages = await Chat.aggregate([
             {$unwind: "$messages"},
             {
                 $match: {
-                    "messages.isImage": true,
-                    "messages.isPublished": true
+                    "message.isImage": true,
+                    "message.isPublished": true
                 }
             },
             {
                 $project: {
                     _id: 0,
-                    imageUrl: "$messages.content",
+                    imageUrl: "$message.content",
                     userName: "$userName"
                 }
             }
         ])
-
-        res.json({ success: true, images: publishedImageMessages.reverse()})
+        res.json({success: true, images: publishedImageMessages.reverse()})
     } catch (error) {
-        return res.json({ success: false, message: error.message });
+        res.json({success: false, message: error.message })
     }
 }

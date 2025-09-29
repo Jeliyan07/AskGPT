@@ -5,6 +5,6 @@ import { imageMessageController, textMessageController } from '../controllers/me
 const messageRouter = express.Router()
 
 messageRouter.post('/text', protect, textMessageController)
-messageRouter.post('/image', protect, imageMessageController)
+messageRouter.post('/image', protect, imageMessageControllerMessageController)
 
 export default messageRouter

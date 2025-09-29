@@ -1,5 +1,6 @@
 import Transaction from "../models/Transaction.js"
-import Stripe from 'stripe'
+import Stripe from "stripe"
+
 
 const plans = [
     {
@@ -25,7 +26,7 @@ const plans = [
     }
 ]
 
-// API Controller for getting all plans
+//api controller to get the plans
 export const getPlans = async (req, res) => {
     try {
         res.json({success: true, plans})
@@ -36,8 +37,8 @@ export const getPlans = async (req, res) => {
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 
-// API Controller for purchasing a plan
-export const purchasePlan = async (req, res) =>{
+//api controller for purchasing a plan
+export const purchasePlan = async (req, res) => {
     try {
         const { planId } = req.body
         const userId = req.user._id
@@ -47,38 +48,40 @@ export const purchasePlan = async (req, res) =>{
             return res.json({success: false, message: "Invalid plan"})
         }
 
-         // Create new Transaction
-         const transaction = await Transaction.create({
+        //create new transaction
+        const transaction = await Transaction.create({
             userId: userId,
             planId: plan._id,
             amount: plan.price,
             credits: plan.credits,
             isPaid: false
-         })
+        })
 
-         const {origin} = req.headers;
+        const {origin} = req.headers;
 
-         const session = await stripe.checkout.sessions.create({
+        const session = await stripe.checkout.sessions.create({
             line_items: [
                 {
-                price_data: {
-                    currency: "usd",
-                    unit_amount: plan.price * 100,
-                    product_data: {
-                        name: plan.name
-                    }
-                },
-                quantity: 1,
+                    price_data: {
+                        currency: "usd",
+                        unit_amount: plan.price * 100,
+                        product_data: {
+                            name: plan.name
+                        }
+                    },
+                    quantity: 1,
                 },
             ],
             mode: 'payment',
             success_url: `${origin}/loading`,
             cancel_url: `${origin}`,
-            metadata: {transactionId: transaction._id.toString(), appId: 'quickgpt'},
-            expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // Expires in 30 minutes
-            });
+            metadata: {transactionId: transaction._id.toString(), appId:
+                'askgpt'
+            },
+            expires_at: Math.floor(Date.now() / 1000) + 30 * 60, //expires at 30 mins
+        });
 
-            res.json({success: true, url: session.url})
+        res.json({success: true, url: session.url})
 
     } catch (error) {
         res.json({success: false, message: error.message})
