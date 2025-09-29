@@ -1,5 +1,5 @@
 import Chat from "../models/Chat.js";
-import User from "../models/User";
+import User from "../models/User.js";
 import jwt from 'jsonwebtoken'
 
 //to generate the token
