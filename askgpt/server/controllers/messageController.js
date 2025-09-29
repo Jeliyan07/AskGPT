@@ -18,7 +18,7 @@ export const textMessageController = async (req, res) => {
         chat.messages.push({role: "User", content: prompt, timestamp: Date.now(),
     isImage: false})
 
-    const { choices } = await openai.chat.completions.create({
+    const { choices } = await OpenAI.chat.completions.create({
     model: "gemini-2.0-flash",
     messages: [
         {
@@ -28,7 +28,7 @@ export const textMessageController = async (req, res) => {
     ],
 });
 
-const reply = {...choices[0].message, timestamp: Date.now(), isImage: flase}
+const reply = {...choices[0].message, timestamp: Date.now(), isImage: false}
 res.json({success: true, reply})
 
 chat.messages.push(reply)
@@ -45,7 +45,7 @@ await User.updateOne({_id: userId}, {$inc: {credits: -1}})
 //image generation message controller
 export const imageMessageController = async (req, res) => {
     try {
-        userId = req.user._id;
+        const userId = req.user._id;
         //check credits
         if(req.user.credits < 2){
             return res.json({ success: false, message: " You don't have enough credits to use this feature"})

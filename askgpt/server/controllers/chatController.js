@@ -1,4 +1,5 @@
 
+import Chat from '../models/Chat.js';
 
 //api controller for creating a new chat
 export const createChat = async (req, res) => {
